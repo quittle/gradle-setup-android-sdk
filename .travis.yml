@@ -6,4 +6,7 @@ script:
     - ./gradlew -p example-android-project assemble
     - ./gradlew -p example-android-project cleanLocalProperties # Ensure this task exists
 deploy:
-    - ./gradlew -p setup-android-sdk publishPlugins
+    - provider: script
+      script: ./gradlew -p setup-android-sdk publishPlugins
+      on:
+        branch: master
