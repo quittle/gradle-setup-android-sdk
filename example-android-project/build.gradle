@@ -1,0 +1,18 @@
+buildscript {
+    repositories {
+        jcenter()
+        mavenLocal()
+    }
+    dependencies {
+        classpath 'com.quittle:setup-android-sdk:0.0.1'
+        classpath 'com.android.tools.build:gradle:2.3.3'
+    }
+}
+
+apply plugin: 'com.quittle.setup-android-sdk'
+apply plugin: 'android'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion '25.0.0'
+}

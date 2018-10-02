@@ -1,0 +1,5 @@
+language: java
+script:
+    - ./gradlew -p android-sdk-installer
+    - ./gradlew -p android-sdk-installer publishToMavenLocal
+    - ./gradlew -p example-android-project assemble

@@ -1,0 +1,58 @@
+plugins {
+    id 'findbugs'
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+    id 'pmd'
+}
+
+repositories {
+    jcenter()
+}
+
+group = 'com.quittle'
+version = '0.0.1'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = 'setup-android-sdk'
+
+            from components.java
+        }
+    }
+}
+
+gradlePlugin {
+    plugins {
+        androidSdkInstallerPlugin {
+            id = 'com.quittle.setup-android-sdk'
+            implementationClass = 'com.quittle.androidsdkinstaller.AndroidSdkInstallerPlugin'
+        }
+    }
+}
+
+dependencies {
+    implementation 'com.android.tools.build:gradle:2.3.3'
+    implementation 'commons-io:commons-io:2.6'
+    implementation 'org.apache.logging.log4j:log4j-iostreams:2.11.1'
+
+    compileOnly 'com.google.code.findbugs:annotations:3.0.1'
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:all" << "-Werror"
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+findbugs {
+    effort 'max'
+    reportLevel 'low'
+}
+
+defaultTasks 'assemble', 'javadoc', 'check'
