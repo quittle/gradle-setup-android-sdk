@@ -1,6 +1,7 @@
 plugins {
     id 'findbugs'
     id 'java-gradle-plugin'
+    id 'com.gradle.plugin-publish' version '0.10.0'
     id 'maven-publish'
     id 'pmd'
 }
@@ -12,21 +13,33 @@ repositories {
 group = 'com.quittle'
 version = '0.0.1'
 
+gradlePlugin {
+    plugins {
+        setupAndroidSdkPlugin {
+            id = 'com.quittle.setup-android-sdk'
+            implementationClass = 'com.quittle.setupandroidsdk.SetupAndroidSdkPlugin'
+        }
+    }
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
             artifactId = 'setup-android-sdk'
-
             from components.java
         }
     }
 }
 
-gradlePlugin {
+pluginBundle {
+    website = 'https://github.com/quittle/gradle-setup-android-sdk'
+    vcsUrl = 'https://github.com/quittle/gradle-setup-android-sdk'
+    description = 'Automatically installs Android SDK dependencies for Android Gradle builds.'
+    tags = ['android', 'android sdk', 'installer']
+
     plugins {
-        androidSdkInstallerPlugin {
-            id = 'com.quittle.setup-android-sdk'
-            implementationClass = 'com.quittle.androidsdkinstaller.AndroidSdkInstallerPlugin'
+        setupAndroidSdkPlugin {
+            displayName = 'Setup Android SDK'
         }
     }
 }

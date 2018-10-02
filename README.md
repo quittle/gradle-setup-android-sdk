@@ -9,7 +9,7 @@ locally first.
 
 In general, to build locally.
 ```
-$ ./gradlew -p android-sdk-installer # This runs all the default tasks
-$ ./gradlew -p android-sdk-installer publishToMavenLocal
+$ ./gradlew -p setup-android-sdk # This runs all the default tasks
+$ ./gradlew -p setup-android-sdk publishToMavenLocal
 $ ./gradlew -p example-android-project assemble
 ```

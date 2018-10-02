@@ -1,4 +1,4 @@
-package com.quittle.androidsdkinstaller;
+package com.quittle.setupandroidsdk;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -33,7 +33,7 @@ import org.gradle.api.tasks.TaskInstantiationException;
 /**
  * Automatically installs the Android SDK. Apply after the Android Gradle plugin.
  */
-public class AndroidSdkInstallerPlugin implements Plugin<Project> {
+public class SetupAndroidSdkPlugin implements Plugin<Project> {
     @Override
     public void apply(final Project project) {
         final Project rootProject = project.getRootProject();
