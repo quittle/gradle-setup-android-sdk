@@ -2,7 +2,8 @@ language: java
 install: true
 script:
     - ./gradlew -p setup-android-sdk
-    - ./gradlew -p setup-android-sdk publishToMavenLocal
+    - ./gradlew -p setup-android-sdk publishToMavenLocal # Publish locally to consume in the example
     - ./gradlew -p example-android-project assemble
-    - ./gradlew -p example-android-project cleanLocalProperties # Ensure this task works
+    - ./gradlew -p example-android-project cleanLocalProperties # Ensure this task exists
 deploy:
+    - ./gradlew -p setup-android-sdk publishPlugins
