@@ -1,0 +1,90 @@
+#!/usr/bin/env sh
+
+# Validate that the plugin works correctly.
+
+set -e
+
+SDK_MANAGER='example-android-project/build/android-sdk-root/tools/bin/sdkmanager'
+LOCAL_PROPERTIES='example-android-project/local.properties'
+
+# Echo's the SHA-256 sum of the sdk manager
+hash_sdkmanager() {
+    echo `sha256sum $SDK_MANAGER | head -c64`
+}
+
+# Asserts that a file does not exist
+# param 1 - The file to check the existence of
+assert_file_does_not_exist() {
+    local file="$1"
+
+    if [ -e "$file" ]; then
+        echo "File $file should not exist"
+        exit 1
+    fi
+}
+
+# Asserts that a file exists
+# param 1 - The file to check the existence of
+assert_file_exists() {
+    local file="$1"
+
+    if [ ! -e "$file" ]; then
+        echo "File $file does not exist"
+        exit 1
+    fi
+}
+
+# Asserts two values are equal. Exits if the values are not
+# param 1 - First value to compare
+# param 2 - Second value to compare
+# param 3 - Error message to print if failed/
+assert_equal() {
+    local failure_message="$3"
+
+    if [ "$1" != "$2" ]; then
+        echo "Values '$1' and '$2' do not match: ${failure_message}"
+        exit 1
+    fi
+}
+
+# Asserts that the sdkmanager hash matches the expected value
+# param 1 - The hash of the sdkmanager
+assert_sdkmanager_hash() {
+    local hash_value="$1"
+
+    assert_equal `hash_sdkmanager` "$hash_value" 'sdkmanager hash incorrect'
+}
+
+# Clean up possibly existing files to ensure a fresh start
+rm -f 'example-android-project/local.properties'
+rm -rf 'example-android-project/build'
+assert_file_does_not_exist $LOCAL_PROPERTIES
+
+# Default sdkmanager
+./gradlew -p example-android-project assemble
+assert_file_exists $LOCAL_PROPERTIES
+assert_sdkmanager_hash 'ca5dce516a93bea2c070ba6cc63d3d45436ce1c9a27f1173256b2aa98ae1cffa'
+
+# Overridden sdkmanager
+SDK_TOOLS_VERSION=3859397 ./gradlew -p example-android-project assemble
+assert_file_exists $LOCAL_PROPERTIES
+assert_sdkmanager_hash '7dbdf8118c98a3a55f0d66898872d0ebbd15b5b0f6446766a061e0dd6d0327b9'
+
+# Invalid sdkmanager
+SDK_TOOLS_VERSION=invalid ./gradlew -p example-android-project assemble && \
+        echo 'Build should not have succeeded' && exit 1 || \
+        echo 'Build failure expected'
+assert_file_exists $LOCAL_PROPERTIES
+assert_sdkmanager_hash '7dbdf8118c98a3a55f0d66898872d0ebbd15b5b0f6446766a061e0dd6d0327b9'
+
+./gradlew -p example-android-project cleanLocalProperties
+assert_file_does_not_exist $LOCAL_PROPERTIES
+assert_file_exists $SDK_MANAGER
+
+./gradlew -p example-android-project tasks
+assert_file_exists $LOCAL_PROPERTIES
+assert_file_exists $SDK_MANAGER
+
+./gradlew -p example-android-project clean
+assert_file_does_not_exist $LOCAL_PROPERTIES
+assert_file_does_not_exist $SDK_MANAGER

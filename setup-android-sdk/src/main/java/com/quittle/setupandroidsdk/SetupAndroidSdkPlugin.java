@@ -1,10 +1,12 @@
 package com.quittle.setupandroidsdk;
 
+import com.android.build.gradle.BaseExtension;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
-import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
@@ -13,38 +15,40 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.gradle.api.AntBuilder;
 import org.apache.tools.ant.taskdefs.condition.Os;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.Exec;
 import org.gradle.api.tasks.WriteProperties;
-import com.android.build.gradle.BaseExtension;
 import org.gradle.api.tasks.TaskInstantiationException;
 
 /**
  * Automatically installs the Android SDK. Apply after the Android Gradle plugin.
  */
 public class SetupAndroidSdkPlugin implements Plugin<Project> {
+    private static final String SDK_TOOLS_URL_FORMAT =
+            "https://dl.google.com/android/repository/sdk-tools-%s-%s.zip";
     @Override
     public void apply(final Project project) {
         final Project rootProject = project.getRootProject();
         final File sdkDir = new File(rootProject.getBuildDir(), "android-sdk-root");
+        final File sdkToolsVersionFile = new File(sdkDir, "sdkToolsVersion.txt");
         final File sdkManager = new File(sdkDir, "tools/bin/sdkmanager");
         final File localProperties = rootProject.file("local.properties");
 
-        if (!sdkManager.exists()) {
-            downloadSdkTools(rootProject, sdkDir);
-            sdkManager.setExecutable(true);
-        }
+        final SetupAndroidSdkExtension extension =
+                project.getExtensions().create("setupAndroidSdk", SetupAndroidSdkExtension.class);
+
 
         createCleanTask(rootProject, localProperties);
         if (!localProperties.exists()) {
@@ -52,14 +56,48 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
         }
 
         rootProject.afterEvaluate(p -> {
+            installSdkManager(rootProject, sdkToolsVersionFile, extension.getSdkToolsVersion(), sdkDir, sdkManager);
+
             installSdk(p, sdkDir, sdkManager);
         });
     }
 
+    /**
+     * Installs {@code sdkmanager}. There is a file storing what the version downloaded was to
+     * avoid downloading every time and detecting version changes.
+     */
+    private static void installSdkManager(final Project project, final File sdkToolsVersionFile,
+            final String desiredSdkToolsVersion, final File sdkDir, final File sdkManager) {
+        final String currentSdkToolsVersion = getCurrentSdkToolsVersion(project, sdkToolsVersionFile);
+        if (!sdkManager.exists() || !Objects.equals(desiredSdkToolsVersion, currentSdkToolsVersion)) {
+            downloadSdkTools(project, sdkDir, desiredSdkToolsVersion);
+            sdkManager.setExecutable(true);
+            try {
+                FileUtils.writeStringToFile(sdkToolsVersionFile, desiredSdkToolsVersion, StandardCharsets.UTF_8);
+            } catch (final IOException e) {
+                throw new TaskInstantiationException("Unable to save sdk tools version", e);
+            }
+        }
+    }
+
+    private static String getCurrentSdkToolsVersion(final Project project, final File sdkToolsVersionFile) {
+        if (!sdkToolsVersionFile.exists()) {
+            return null;
+        } else {
+            try {
+                return FileUtils.readFileToString(sdkToolsVersionFile, StandardCharsets.UTF_8);
+            } catch (final IOException e) {
+                project.getLogger().error(
+                        "Unable to read sdk tools version file: " + sdkToolsVersionFile.getAbsolutePath());
+                throw new TaskInstantiationException("Unable to read sdk tools version file", e);
+            }
+        }
+    }
+
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
-    private static void downloadSdkTools(final Project project, final File sdkRoot) {
+    private static void downloadSdkTools(final Project project, final File sdkRoot, final String sdkToolsVersion) {
         byte[] memoryRepresentation = null;
-        try (final InputStream is = new URL(getSdkToolsUrl()).openStream();
+        try (final InputStream is = new URL(getSdkToolsUrl(sdkToolsVersion)).openStream();
                 final ZipInputStream zis = new ZipInputStream(is)) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
@@ -107,11 +145,8 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
         }
     }
 
-    private static String getSdkToolsUrl() {
-        final String sdkToolsUrl = "https://dl.google.com/android/repository/sdk-tools-%s-%s.zip";
-        final String version = "3859397";
+    private static String getSdkToolsUrl(final String sdkToolsVersion) {
         final String platform;
-
         if (Os.isFamily(Os.FAMILY_UNIX)) {
             platform = "linux";
         } else if (Os.isFamily(Os.FAMILY_WINDOWS)) {
@@ -122,7 +157,7 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
             throw new TaskInstantiationException("Unsupported OS. File a bug report to get it added");
         }
 
-        return String.format(sdkToolsUrl, platform, version);
+        return String.format(SDK_TOOLS_URL_FORMAT, platform, sdkToolsVersion);
     }
 
     private static void installSdk(final Project project, final File sdkRoot, final File sdkManager) {

@@ -11,7 +11,7 @@ repositories {
 }
 
 group = 'com.quittle'
-version = '0.0.1'
+version = '0.1.0'
 
 gradlePlugin {
     plugins {
@@ -61,6 +61,11 @@ tasks.withType(FindBugs) {
         xml.enabled = false
         html.enabled = true
     }
+}
+
+javadoc {
+    failOnError true
+    options.addStringOption 'Xwerror', '-quiet' // See https://stackoverflow.com/a/49544352
 }
 
 findbugs {
