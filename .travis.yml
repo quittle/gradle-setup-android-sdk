@@ -11,3 +11,4 @@ deploy:
       script: ./gradlew -p setup-android-sdk publishPlugins
       on:
         branch: master
+        tags: true
