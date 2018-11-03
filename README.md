@@ -48,7 +48,7 @@ $ ./validate_plugin # Integration test to validate the plugin works
 ```
 
 ## Deployment
-This package is deployed via [Travis CI](https://travis-ci.org/quittle/gradle-setup-android-sdkg).
+This package is deployed via [Travis CI](https://travis-ci.org/quittle/gradle-setup-android-sdk).
 See `.travis.yml` for the CI/CD setup.
 
 In the configuration for the build on Travis, `GRADLE_PUBLISH_KEY` and `GRADLE_PUBLISH_SECRET` are
