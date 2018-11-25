@@ -1,4 +1,4 @@
-# Android SDK Installer [![Build Status](https://travis-ci.org/quittle/gradle-setup-android-sdk.svg?branch=master)](https://travis-ci.org/quittle/gradle-setup-android-sdk)
+# Android SDK Installer [![Gradle Plugin](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/quittle/setup-android-sdk/maven-metadata.xml.svg?label=Gradle+Plugin)](https://plugins.gradle.org/plugin/com.quittle.setup-android-sdk) [![Build Status](https://travis-ci.org/quittle/gradle-setup-android-sdk.svg?branch=master)](https://travis-ci.org/quittle/gradle-setup-android-sdk)
 
 This plugin automatically installs the Android SDK and configures Gradle to consume it. This plugin
 will automatically accept all Android SDK licenses when installing them. Before using the plugin or
@@ -14,7 +14,7 @@ The minimum requirement for consumption is to simply
 ```groovy
 // Consume from Gradle plugin respository. This is the only required step.
 plugins {
-    id 'com.quittle.setup-android-sdk' version '0.2.0'
+    id 'com.quittle.setup-android-sdk' version '0.1.0'
 }
 
 // Consume android plugin as usual.
