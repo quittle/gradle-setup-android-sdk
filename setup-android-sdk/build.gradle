@@ -1,17 +1,34 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.eclipse.jgit:org.eclipse.jgit:5.2.1.201812262042-r'
+    }
+}
+
+import org.eclipse.jgit.api.Git
+
 plugins {
     id 'findbugs'
     id 'java-gradle-plugin'
-    id 'com.gradle.plugin-publish' version '0.10.0'
+    id 'com.gradle.plugin-publish' version '0.10.1'
     id 'maven-publish'
     id 'pmd'
 }
 
 repositories {
+    google()
     jcenter()
 }
 
 group = 'com.quittle'
-version = '0.1.0'
+version = Git.open(project.rootDir.parentFile)
+        .describe()
+        .setTarget('HEAD')
+        .setTags(true)
+        .call()
 
 gradlePlugin {
     plugins {
@@ -45,15 +62,16 @@ pluginBundle {
 }
 
 dependencies {
-    implementation 'com.android.tools.build:gradle:2.3.3'
+    implementation 'com.android.tools.build:gradle:3.3.2'
     implementation 'commons-io:commons-io:2.6'
     implementation 'org.apache.logging.log4j:log4j-iostreams:2.11.2'
 
+    annotationProcessor 'com.google.code.findbugs:annotations:3.0.1'
     compileOnly 'com.google.code.findbugs:annotations:3.0.1'
 }
 
 tasks.withType(JavaCompile) {
-    options.compilerArgs << "-Xlint:all" << "-Werror"
+    options.compilerArgs << '-Xlint:all' << '-Werror'
 }
 
 tasks.withType(FindBugs) {
