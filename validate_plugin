@@ -88,3 +88,9 @@ assert_file_exists $SDK_MANAGER
 ./gradlew -p example-android-project clean
 assert_file_does_not_exist $LOCAL_PROPERTIES
 assert_file_does_not_exist $SDK_MANAGER
+
+# Alpha version
+ANDROID_GRADLE_PLUGIN_VERSION=3.3.0-alpha08 ./gradlew -p example-android-project assemble
+
+# Super old version of the build tools
+ANDROID_BUILD_TOOLS_VERSION=0.0.1 ./gradlew -p example-android-project assemble

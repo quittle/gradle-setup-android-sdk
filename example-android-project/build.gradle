@@ -1,13 +1,21 @@
 buildscript {
     repositories {
+        google()
+        mavenCentral()
         mavenLocal()
-        jcenter()
     }
 
     dependencies {
         classpath 'com.quittle:setup-android-sdk:+'
-        classpath 'com.android.tools.build:gradle:2.3.3'
+
+        final String androidGradlePluginVersion = System.env.ANDROID_GRADLE_PLUGIN_VERSION ?: '3.3.0'
+        classpath "com.android.tools.build:gradle:${androidGradlePluginVersion}"
     }
+}
+
+repositories {
+    google()
+    jcenter()
 }
 
 apply plugin: 'com.quittle.setup-android-sdk'
@@ -15,7 +23,9 @@ apply plugin: 'android'
 
 android {
     compileSdkVersion 28
-    buildToolsVersion '28.0.2'
+
+    final String androidBuildToolsVersion = System.env.ANDROID_BUILD_TOOLS_VERSION ?: '28.0.2'
+    buildToolsVersion androidBuildToolsVersion
 }
 
 setupAndroidSdk {

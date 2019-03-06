@@ -1,6 +1,8 @@
 package com.quittle.setupandroidsdk;
 
 import com.android.build.gradle.BaseExtension;
+import com.android.builder.core.AndroidBuilder;
+import com.android.repository.Revision;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -57,8 +59,12 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
 
         rootProject.afterEvaluate(p -> {
             installSdkManager(rootProject, sdkToolsVersionFile, extension.getSdkToolsVersion(), sdkDir, sdkManager);
+        });
 
-            installSdk(p, sdkDir, sdkManager);
+        project.allprojects(p -> {
+            p.afterEvaluate(pp -> {
+                installSdk(pp, sdkDir, sdkManager);
+            });
         });
     }
 
@@ -163,7 +169,8 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
     private static void installSdk(final Project project, final File sdkRoot, final File sdkManager) {
         final BaseExtension android = project.getExtensions().findByType(BaseExtension.class);
         if (android == null) {
-            throw new TaskInstantiationException("Unable to find android extension.");
+            project.getLogger().debug("Unable to find android extension for project " + project.getName() + ". Skipping...");
+            return;
         }
 
         final String compileSdkVersion = android.getCompileSdkVersion();
@@ -171,10 +178,7 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
             throw new TaskInstantiationException("Android compile sdk version not set");
         }
 
-        final String buildToolsVersion = android.getBuildToolsVersion();
-        if (buildToolsVersion == null) {
-            throw new TaskInstantiationException("Android build tools version not set");
-        }
+        final String buildToolsVersion = getBuildToolsVersion(android);
 
         final ProcessBuilder pb = new ProcessBuilder(sdkManager.getAbsolutePath(),
                 "--sdk_root=" + sdkRoot.getAbsolutePath(),
@@ -198,6 +202,33 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
         }
     }
 
+    /**
+     * If the android extension does not specify a build tools version explicitly, then a default version as chosen by
+     * the plugin is used. If the build tools version added is lower than this default version, it considered
+     * unsupported and rather than failing the build, the plugin helpfully ignores what was specified, logs a warning,
+     * and instead uses the min version hardcoded in the plugin.
+     */
+    private static String getBuildToolsVersion(final BaseExtension android) {
+        final String explicitVersion = android.getBuildToolsVersion();
+        final Revision determinedVersion;
+        if (explicitVersion == null) {
+            determinedVersion = AndroidBuilder.MIN_BUILD_TOOLS_REV;
+        } else {
+            final Revision explicitFullRevision = Revision.parseRevision(explicitVersion);
+            if (explicitFullRevision.compareTo(AndroidBuilder.MIN_BUILD_TOOLS_REV) < 0) {
+                determinedVersion = AndroidBuilder.MIN_BUILD_TOOLS_REV;
+            } else {
+                determinedVersion = explicitFullRevision;
+            }
+        }
+        return determinedVersion.toString().replace(' ', '-');
+    }
+
+    /**
+     * Reads {@link is} as a stream of text and passes each line to the {@link consumer}.
+     * @param is The stream to read from
+     * @param consumer Called with each line from the input stream as it is read.
+     */
     private static void write(final InputStream is, final Consumer<String> consumer) throws IOException {
         try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
             bufferedReader.lines().forEach(consumer);
