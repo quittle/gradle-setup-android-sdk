@@ -3,6 +3,7 @@ package com.quittle.setupandroidsdk;
 /**
  * Provides configuration for {@link SetupAndroidSdkPlugin}.
  */
+@SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
 public class SetupAndroidSdkExtension {
     /** The default version of Android SDK Tools to download and use. */
     public static final String DEFAULT_SDK_TOOLS_VERSION = "4333796";

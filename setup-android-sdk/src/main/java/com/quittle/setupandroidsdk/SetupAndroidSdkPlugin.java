@@ -37,6 +37,7 @@ import org.gradle.api.tasks.TaskInstantiationException;
 /**
  * Automatically installs the Android SDK. Apply after the Android Gradle plugin.
  */
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class SetupAndroidSdkPlugin implements Plugin<Project> {
     private static final String SDK_TOOLS_URL_FORMAT =
             "https://dl.google.com/android/repository/sdk-tools-%s-%s.zip";
@@ -101,6 +102,7 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
     }
 
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
+    @SuppressWarnings("PMD.AssignmentInOperand")
     private static void downloadSdkTools(final Project project, final File sdkRoot, final String sdkToolsVersion) {
         byte[] memoryRepresentation = null;
         try (final InputStream is = new URL(getSdkToolsUrl(sdkToolsVersion)).openStream();
