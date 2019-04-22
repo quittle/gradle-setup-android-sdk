@@ -1,4 +1,4 @@
-# Android SDK Installer [![Gradle Plugin](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/quittle/setup-android-sdk/maven-metadata.xml.svg?label=Gradle+Plugin)](https://plugins.gradle.org/plugin/com.quittle.setup-android-sdk) [![Build Status](https://travis-ci.org/quittle/gradle-setup-android-sdk.svg?branch=master)](https://travis-ci.org/quittle/gradle-setup-android-sdk)
+# Android SDK Installer [![Gradle Plugin](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/quittle/setup-android-sdk/maven-metadata.xml.svg?label=Gradle+Plugin)](https://plugins.gradle.org/plugin/com.quittle.setup-android-sdk) [![Build Status](https://travis-ci.com/quittle/gradle-setup-android-sdk.svg?branch=master)](https://travis-ci.com/quittle/gradle-setup-android-sdk)
 
 This plugin automatically installs the Android SDK and configures Gradle to consume it. This plugin
 will automatically accept all Android SDK licenses when installing them. Before using the plugin or
@@ -48,7 +48,7 @@ $ ./validate_plugin # Integration test to validate the plugin works
 ```
 
 ## Deployment
-This package is deployed via [Travis CI](https://travis-ci.org/quittle/gradle-setup-android-sdk).
+This package is deployed via [Travis CI](https://travis-ci.com/quittle/gradle-setup-android-sdk).
 See `.travis.yml` for the CI/CD setup.
 
 In the configuration for the build on Travis, `GRADLE_PUBLISH_KEY` and `GRADLE_PUBLISH_SECRET` are
