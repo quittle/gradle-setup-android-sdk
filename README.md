@@ -7,8 +7,51 @@ upgrading Android SDK versions, make sure you are okay accepting the licenses fo
 ## Consumption
 
 The minimum requirement for consumption is to simply
-[apply this plugin](https://plugins.gradle.org/plugin/com.quittle.setup-android-sdk) before the
-`android` one.
+[apply this plugin](https://plugins.gradle.org/plugin/com.quittle.setup-android-sdk)
+
+### Multi-Project
+If you have a multi-project setup, e.g. you have two `build.gradle`s, one at `/build.gradle` and one at `/app/build.gradle`,
+follow this setup, modifying only the root `build.gradle`.
+
+#### build.gradle
+```groovy
+buildscript {
+    repositories {
+        // Make sure to have Google as a buildscript dependency for the plugin
+        google()
+    }
+    
+    dependencies {
+        // Keep whatever build tools you have like the
+        // Android Gradle plugin (com.android.tools.build:gradle)
+    }
+}
+
+plugins {
+    // Apply the plugin
+    id 'com.quittle.setup-android-sdk' version '1.2.0'
+}
+
+// The rest of the file can remain as it is
+allprojects {
+    repositories {
+        // ...
+    }
+}
+
+// Optional configuration
+setupAndroidSdk {
+    // This is the suffix found in the downloads for command line tool zips.
+    // See https://developer.android.com/studio/#command-tools for the latest version available.
+    // If not specified, defaults to the version baked into the plugin.
+    sdkToolsVersion '4333796'
+}
+```
+
+### Single-Project Setup
+
+If you only have a single-project setup, i.e. one `build.gradle` in the root of you project, follow this setup. Make sure
+to apply the plugin *before* the `android` one.
 
 #### build.gradle
 ```groovy
