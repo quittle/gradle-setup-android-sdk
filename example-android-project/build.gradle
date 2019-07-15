@@ -26,6 +26,12 @@ android {
 
     final String androidBuildToolsVersion = System.env.ANDROID_BUILD_TOOLS_VERSION ?: '28.0.2'
     buildToolsVersion androidBuildToolsVersion
+
+    externalNativeBuild {
+        ndkBuild {
+            path 'src/main/cpp/Android.mk'
+        }
+    }
 }
 
 setupAndroidSdk {
@@ -35,4 +41,9 @@ setupAndroidSdk {
         sdkToolsVersion version
         sdkToolsVersion = version
     }
+
+    // All of these should be supported
+    packages('ndk-bundle')
+    packages 'ndk-bundle', 'ndk-bundle'
+    packages(['ndk-bundle', 'ndk-bundle'])
 }

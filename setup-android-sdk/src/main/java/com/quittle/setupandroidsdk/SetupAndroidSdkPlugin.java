@@ -16,9 +16,16 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Consumer;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.gradle.api.AntBuilder;
@@ -64,7 +71,10 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
 
         project.allprojects(p -> {
             p.afterEvaluate(pp -> {
-                installSdk(pp, sdkDir, sdkManager);
+                final Set<String> packages = new HashSet<>();
+                packages.addAll(getDefaultPackagesToInstall(pp));
+                packages.addAll(extension.getPackages());
+                installSdk(pp, sdkDir, sdkManager, packages);
             });
         });
     }
@@ -168,11 +178,11 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
         return String.format(SDK_TOOLS_URL_FORMAT, platform, sdkToolsVersion);
     }
 
-    private static void installSdk(final Project project, final File sdkRoot, final File sdkManager) {
+    private static Collection<String> getDefaultPackagesToInstall(final Project project) {
         final BaseExtension android = project.getExtensions().findByType(BaseExtension.class);
         if (android == null) {
             project.getLogger().debug("Unable to find android extension for project " + project.getName() + ". Skipping...");
-            return;
+            return Collections.emptyList();
         }
 
         final String compileSdkVersion = android.getCompileSdkVersion();
@@ -182,10 +192,15 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
 
         final String buildToolsVersion = getBuildToolsVersion(android);
 
-        final ProcessBuilder pb = new ProcessBuilder(sdkManager.getAbsolutePath(),
-                "--sdk_root=" + sdkRoot.getAbsolutePath(),
-                "platforms;" + compileSdkVersion,
-                "build-tools;" + buildToolsVersion);
+        return Arrays.asList("platforms;" + compileSdkVersion, "build-tools;" + buildToolsVersion);
+    }
+
+    private static void installSdk(final Project project, final File sdkRoot, final File sdkManager, final Collection<String> packages) {
+        final List<String> command = new ArrayList<>();
+        command.add(sdkManager.getAbsolutePath());
+        command.add("--sdk_root=" + sdkRoot.getAbsolutePath());
+        command.addAll(packages);
+        final ProcessBuilder pb = new ProcessBuilder(command);
         pb.redirectErrorStream(true);
         final int exitCode;
         try {

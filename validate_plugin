@@ -4,7 +4,9 @@
 
 set -e
 
-SDK_MANAGER='example-android-project/build/android-sdk-root/tools/bin/sdkmanager'
+SDK_MANAGER='./example-android-project/build/android-sdk-root/tools/bin/sdkmanager'
+APK_ANALYZER='./example-android-project/build/android-sdk-root/tools/bin/apkanalyzer'
+DEBUG_APK="./example-android-project/build/outputs/apk/debug/example-android-project-debug.apk"
 LOCAL_PROPERTIES='example-android-project/local.properties'
 
 # Echo's the SHA-256 sum of the sdk manager
@@ -47,12 +49,24 @@ assert_equal() {
     fi
 }
 
+fail() {
+    local failure_message="$1"
+    echo "Assertion failure: ${failure_message}"
+    exit 1
+}
+
 # Asserts that the sdkmanager hash matches the expected value
 # param 1 - The hash of the sdkmanager
 assert_sdkmanager_hash() {
     local hash_value="$1"
 
     assert_equal `hash_sdkmanager` "$hash_value" 'sdkmanager hash incorrect'
+}
+
+assert_app_contains_native_code() {
+    chmod u+x "$APK_ANALYZER"
+    "$APK_ANALYZER" files list $DEBUG_APK | grep libhello-world.so || \
+            fail 'Native library not included in generated APK'
 }
 
 # Clean up possibly existing files to ensure a fresh start
@@ -64,11 +78,13 @@ assert_file_does_not_exist $LOCAL_PROPERTIES
 ./gradlew -p example-android-project assemble
 assert_file_exists $LOCAL_PROPERTIES
 assert_sdkmanager_hash 'ca5dce516a93bea2c070ba6cc63d3d45436ce1c9a27f1173256b2aa98ae1cffa'
+assert_app_contains_native_code
 
 # Overridden sdkmanager
 SDK_TOOLS_VERSION=3859397 ./gradlew -p example-android-project assemble
 assert_file_exists $LOCAL_PROPERTIES
 assert_sdkmanager_hash '7dbdf8118c98a3a55f0d66898872d0ebbd15b5b0f6446766a061e0dd6d0327b9'
+assert_app_contains_native_code
 
 # Invalid sdkmanager
 SDK_TOOLS_VERSION=invalid ./gradlew -p example-android-project assemble && \
@@ -91,6 +107,8 @@ assert_file_does_not_exist $SDK_MANAGER
 
 # Alpha version
 ANDROID_GRADLE_PLUGIN_VERSION=3.3.0-alpha08 ./gradlew -p example-android-project assemble
+assert_app_contains_native_code
 
 # Super old version of the build tools
 ANDROID_BUILD_TOOLS_VERSION=0.0.1 ./gradlew -p example-android-project assemble
+assert_app_contains_native_code
