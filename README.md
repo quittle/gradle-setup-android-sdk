@@ -45,6 +45,9 @@ setupAndroidSdk {
     // See https://developer.android.com/studio/#command-tools for the latest version available.
     // If not specified, defaults to the version baked into the plugin.
     sdkToolsVersion '4333796'
+
+    // You can add additional packages to install like this
+    packages 'ndk-bundle', 'emulator', 'system-images;android-28;default;x86'
 }
 ```
 
@@ -73,6 +76,9 @@ setupAndroidSdk {
     // See https://developer.android.com/studio/#command-tools for the latest version available.
     // If not specified, defaults to the version baked into the plugin.
     sdkToolsVersion '4333796'
+
+    // You can add additional packages to install like this
+    packages 'ndk-bundle', 'emulator', 'system-images;android-28;default;x86'
 }
 ```
 
