@@ -2,7 +2,7 @@
 
 # Validate that the plugin works correctly.
 
-set -e
+set -ex
 
 SDK_MANAGER='./example-android-project/build/android-sdk-root/tools/bin/sdkmanager'
 APK_ANALYZER='./example-android-project/build/android-sdk-root/tools/bin/apkanalyzer'
@@ -106,7 +106,7 @@ assert_file_does_not_exist $LOCAL_PROPERTIES
 assert_file_does_not_exist $SDK_MANAGER
 
 # Alpha version
-ANDROID_GRADLE_PLUGIN_VERSION=3.3.0-alpha08 ./gradlew -p example-android-project assemble
+ANDROID_GRADLE_PLUGIN_VERSION=3.4.0-rc03 ./gradlew -p example-android-project assemble
 assert_app_contains_native_code
 
 # Super old version of the build tools
