@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.gradle.api.AntBuilder;
+import org.gradle.api.logging.Logger;
 import org.apache.tools.ant.taskdefs.condition.Os;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -51,6 +52,7 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
     @Override
     public void apply(final Project project) {
         final Project rootProject = project.getRootProject();
+        final Logger logger = rootProject.getLogger();
         final File sdkDir = new File(rootProject.getBuildDir(), "android-sdk-root");
         final File sdkToolsVersionFile = new File(sdkDir, "sdkToolsVersion.txt");
         final File sdkManager = new File(sdkDir, "tools/bin/sdkmanager");
@@ -62,11 +64,11 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
 
         createCleanTask(rootProject, localProperties);
         if (!localProperties.exists()) {
-            createLocalProperties(rootProject, sdkDir, localProperties);
+            createLocalProperties(sdkDir, localProperties);
         }
 
         rootProject.afterEvaluate(p -> {
-            installSdkManager(rootProject, sdkToolsVersionFile, extension.getSdkToolsVersion(), sdkDir, sdkManager);
+            installSdkManager(logger, sdkToolsVersionFile, extension.getSdkToolsVersion(), sdkDir, sdkManager);
         });
 
         project.allprojects(p -> {
@@ -74,7 +76,7 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
                 final Set<String> packages = new HashSet<>();
                 packages.addAll(getDefaultPackagesToInstall(pp));
                 packages.addAll(extension.getPackages());
-                installSdk(pp, sdkDir, sdkManager, packages);
+                installSdk(logger, sdkDir, sdkManager, packages);
             });
         });
     }
@@ -83,11 +85,11 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
      * Installs {@code sdkmanager}. There is a file storing what the version downloaded was to
      * avoid downloading every time and detecting version changes.
      */
-    private static void installSdkManager(final Project project, final File sdkToolsVersionFile,
+    private static void installSdkManager(final Logger logger, final File sdkToolsVersionFile,
             final String desiredSdkToolsVersion, final File sdkDir, final File sdkManager) {
-        final String currentSdkToolsVersion = getCurrentSdkToolsVersion(project, sdkToolsVersionFile);
+        final String currentSdkToolsVersion = getCurrentSdkToolsVersion(logger, sdkToolsVersionFile);
         if (!sdkManager.exists() || !Objects.equals(desiredSdkToolsVersion, currentSdkToolsVersion)) {
-            downloadSdkTools(project, sdkDir, desiredSdkToolsVersion);
+            downloadSdkTools(logger, sdkDir, desiredSdkToolsVersion);
             sdkManager.setExecutable(true);
             try {
                 FileUtils.writeStringToFile(sdkToolsVersionFile, desiredSdkToolsVersion, StandardCharsets.UTF_8);
@@ -97,14 +99,14 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
         }
     }
 
-    private static String getCurrentSdkToolsVersion(final Project project, final File sdkToolsVersionFile) {
+    private static String getCurrentSdkToolsVersion(final Logger logger, final File sdkToolsVersionFile) {
         if (!sdkToolsVersionFile.exists()) {
             return null;
         } else {
             try {
                 return FileUtils.readFileToString(sdkToolsVersionFile, StandardCharsets.UTF_8);
             } catch (final IOException e) {
-                project.getLogger().error(
+                logger.error(
                         "Unable to read sdk tools version file: " + sdkToolsVersionFile.getAbsolutePath());
                 throw new TaskInstantiationException("Unable to read sdk tools version file", e);
             }
@@ -113,14 +115,14 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
 
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     @SuppressWarnings("PMD.AssignmentInOperand")
-    private static void downloadSdkTools(final Project project, final File sdkRoot, final String sdkToolsVersion) {
+    private static void downloadSdkTools(final Logger logger, final File sdkRoot, final String sdkToolsVersion) {
         byte[] memoryRepresentation = null;
         try (final InputStream is = new URL(getSdkToolsUrl(sdkToolsVersion)).openStream();
                 final ZipInputStream zis = new ZipInputStream(is)) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
                 final String fileName = entry.getName();
-                project.getLogger().debug("Downloading " + fileName);
+                logger.debug("Downloading " + fileName);
                 final File curFile = new File(sdkRoot, fileName);
                 if (entry.isDirectory()) {
                     curFile.mkdirs();
@@ -135,7 +137,7 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
             throw new TaskInstantiationException("Unable read Android SDK tools zip", e);
         }
 
-        project.getLogger().info("Done downloading sdkmanager");
+        logger.info("Done downloading sdkmanager");
     }
 
     private static void createCleanTask(final Project project, final File localProperties) {
@@ -153,7 +155,7 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
         });
     }
 
-    private static void createLocalProperties(final Project project, final File sdkDir, final File localProperties) {
+    private static void createLocalProperties(final File sdkDir, final File localProperties) {
         final Properties properties = new Properties();
         properties.setProperty("sdk.dir", sdkDir.getAbsolutePath());
         try (final OutputStream os = new FileOutputStream(localProperties)) {
@@ -195,11 +197,12 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
         return Arrays.asList("platforms;" + compileSdkVersion, "build-tools;" + buildToolsVersion);
     }
 
-    private static void installSdk(final Project project, final File sdkRoot, final File sdkManager, final Collection<String> packages) {
+    private static void installSdk(final Logger logger, final File sdkRoot, final File sdkManager, final Collection<String> packages) {
         final List<String> command = new ArrayList<>();
         command.add(sdkManager.getAbsolutePath());
         command.add("--sdk_root=" + sdkRoot.getAbsolutePath());
         command.addAll(packages);
+        logger.debug("Installing SDK with command: " + command);
         final ProcessBuilder pb = new ProcessBuilder(command);
         pb.redirectErrorStream(true);
         final int exitCode;
@@ -208,14 +211,14 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
             try (final OutputStream os = process.getOutputStream()) {
                 os.write('y');
             }
-            write(process.getInputStream(), project.getLogger()::debug);
+            write(process.getInputStream(), logger::debug);
             exitCode = process.waitFor();
         } catch (final IOException | InterruptedException e) {
             throw new TaskInstantiationException("sdkmanager failed to run successfully", e);
         }
 
-        if (exitCode != 0 ) {
-            throw new TaskInstantiationException("Unable to run sdkmanager successfully. Exit code:" + exitCode);
+        if (exitCode != 0) {
+            throw new TaskInstantiationException("Unable to run sdkmanager successfully. Exit code: " + exitCode);
         }
     }
 
