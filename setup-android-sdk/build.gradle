@@ -86,6 +86,10 @@ javadoc {
     options.addStringOption 'Xwerror', '-quiet' // See https://stackoverflow.com/a/49544352
 }
 
+pmd {
+    incrementalAnalysis = true
+}
+
 spotbugs {
     effort 'max'
     reportLevel 'low'
