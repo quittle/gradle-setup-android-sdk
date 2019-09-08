@@ -62,12 +62,17 @@ pluginBundle {
 }
 
 dependencies {
-    compileOnly 'com.android.tools.build:gradle:3.4.2'
+    compileOnly 'com.android.tools.build:gradle:3.5.0'
     implementation 'commons-io:commons-io:2.6'
     implementation 'org.apache.logging.log4j:log4j-iostreams:2.12.1'
 
     annotationProcessor 'com.google.code.findbugs:annotations:3.0.1'
     compileOnly 'com.google.code.findbugs:annotations:3.0.1'
+
+    implementation 'org.junit.jupiter:junit-jupiter:5.5.1'
+
+    testCompile 'junit:junit:4.8.2'
+    testCompile 'com.google.code.findbugs:annotations:3.0.1'
 }
 
 tasks.withType(JavaCompile) {

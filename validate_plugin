@@ -112,3 +112,6 @@ assert_app_contains_native_code
 # Super old version of the build tools
 ANDROID_BUILD_TOOLS_VERSION=0.0.1 ./gradlew -p example-android-project assemble
 assert_app_contains_native_code
+
+# New version with differently named class
+ANDROID_GRADLE_PLUGIN_VERSION=3.5.0 ./gradlew -p example-android-project assemble

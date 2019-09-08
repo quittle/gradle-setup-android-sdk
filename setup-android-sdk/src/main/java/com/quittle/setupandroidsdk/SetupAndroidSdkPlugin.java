@@ -1,7 +1,6 @@
 package com.quittle.setupandroidsdk;
 
 import com.android.build.gradle.BaseExtension;
-import com.android.builder.core.AndroidBuilder;
 import com.android.repository.Revision;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.BufferedReader;
@@ -23,9 +22,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.gradle.api.AntBuilder;
@@ -41,6 +42,11 @@ import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.Exec;
 import org.gradle.api.tasks.WriteProperties;
 import org.gradle.api.tasks.TaskInstantiationException;
+
+import javax.swing.text.html.Option;
+
+import static com.android.builder.core.ToolsRevisionUtils.MIN_BUILD_TOOLS_REV;
+import static com.quittle.setupandroidsdk.Utils.getConstantViaReflection;
 
 /**
  * Automatically installs the Android SDK. Apply after the Android Gradle plugin.
@@ -230,18 +236,34 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
      */
     private static String getBuildToolsVersion(final BaseExtension android) {
         final String explicitVersion = android.getBuildToolsVersion();
+        final Revision minBuildToolsVersion = getMinBuildToolsRev();
         final Revision determinedVersion;
         if (explicitVersion == null) {
-            determinedVersion = AndroidBuilder.MIN_BUILD_TOOLS_REV;
+            determinedVersion = minBuildToolsVersion;
         } else {
             final Revision explicitFullRevision = Revision.parseRevision(explicitVersion);
-            if (explicitFullRevision.compareTo(AndroidBuilder.MIN_BUILD_TOOLS_REV) < 0) {
-                determinedVersion = AndroidBuilder.MIN_BUILD_TOOLS_REV;
+            if (explicitFullRevision.compareTo(minBuildToolsVersion) < 0) {
+                determinedVersion = minBuildToolsVersion;
             } else {
                 determinedVersion = explicitFullRevision;
             }
         }
         return determinedVersion.toString().replace(' ', '-');
+    }
+
+    /**
+     * Determines the minimum build tools version from the plugin
+     * @return The minimum version.
+     * @throws TaskInstantiationException if unable to determine the version
+     */
+    private static Revision getMinBuildToolsRev() {
+        return Stream.of(
+                    getConstantViaReflection("com.android.builder.core.AndroidBuilder", "MIN_BUILD_TOOLS_REV", Revision.class),
+                    getConstantViaReflection("com.android.builder.core.ToolsRevisionUtils", "MIN_BUILD_TOOLS_REV", Revision.class))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst()
+                .orElseThrow(() -> new TaskInstantiationException("Unable to determine min build tools version"));
     }
 
     /**
