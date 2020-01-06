@@ -29,7 +29,7 @@ buildscript {
 
 plugins {
     // Apply the plugin
-    id 'com.quittle.setup-android-sdk' version '1.2.0'
+    id 'com.quittle.setup-android-sdk' version '1.3.1'
 }
 
 // The rest of the file can remain as it is
@@ -60,7 +60,7 @@ to apply the plugin *before* the `android` one.
 ```groovy
 // Consume from Gradle plugin respository. This is the only required step.
 plugins {
-    id 'com.quittle.setup-android-sdk' version '0.1.0'
+    id 'com.quittle.setup-android-sdk' version '1.3.1'
 }
 
 // Consume android plugin as usual.
