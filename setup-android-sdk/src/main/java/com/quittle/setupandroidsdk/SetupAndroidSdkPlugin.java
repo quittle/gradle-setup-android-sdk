@@ -61,7 +61,7 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
         final Logger logger = rootProject.getLogger();
         final File sdkDir = new File(rootProject.getBuildDir(), "android-sdk-root");
         final File sdkToolsVersionFile = new File(sdkDir, "sdkToolsVersion.txt");
-        final File sdkManager = new File(sdkDir, "tools/bin/sdkmanager");
+        final File sdkManager = getSdkManager(sdkDir);
         final File localProperties = rootProject.file("local.properties");
 
         final SetupAndroidSdkExtension extension =
@@ -85,6 +85,21 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
                 installSdk(logger, sdkDir, sdkManager, packages);
             });
         });
+    }
+
+    /**
+     * Gets the location of the sdkmanager executable
+     * @param sdkDir The SDK directory to find the sdkmanager in
+     * @return The OS-dependent location of the sdkmanager tool
+     */
+    private static File getSdkManager(final File sdkDir) {
+        if (Os.isFamily(Os.FAMILY_UNIX) || Os.isFamily(Os.FAMILY_MAC)) {
+            return new File(sdkDir, "tools/bin/sdkmanager");
+        } else if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            return new File(sdkDir, "tools/bin/sdkmanager.bat");
+        } else {
+            throw new TaskInstantiationException("Unsupported OS. File a bug report to get it added");
+        }
     }
 
     /**
