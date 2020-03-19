@@ -2,21 +2,28 @@ package com.quittle.setupandroidsdk;
 
 import com.android.build.gradle.BaseExtension;
 import com.android.repository.Revision;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.tools.ant.taskdefs.condition.Os;
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
+import org.gradle.api.Task;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.tasks.Delete;
+import org.gradle.api.tasks.TaskInstantiationException;
+
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,23 +36,9 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import org.gradle.api.AntBuilder;
-import org.gradle.api.logging.Logger;
-import org.apache.tools.ant.taskdefs.condition.Os;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-import org.gradle.api.Task;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.gradle.api.tasks.Copy;
-import org.gradle.api.tasks.Delete;
-import org.gradle.api.tasks.Exec;
-import org.gradle.api.tasks.WriteProperties;
-import org.gradle.api.tasks.TaskInstantiationException;
 
-import javax.swing.text.html.Option;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-import static com.android.builder.core.ToolsRevisionUtils.MIN_BUILD_TOOLS_REV;
 import static com.quittle.setupandroidsdk.Utils.getConstantViaReflection;
 
 /**

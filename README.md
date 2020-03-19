@@ -7,7 +7,8 @@ upgrading Android SDK versions, make sure you are okay accepting the licenses fo
 ## Consumption
 
 The minimum requirement for consumption is to simply
-[apply this plugin](https://plugins.gradle.org/plugin/com.quittle.setup-android-sdk)
+[apply this plugin, `com.quittle.setup-android-sdk`](https://plugins.gradle.org/plugin/com.quittle.setup-android-sdk).
+The latest version is listed above in the "Gradle Plugin" badge.
 
 ### Multi-Project
 If you have a multi-project setup, e.g. you have two `build.gradle`s, one at `/build.gradle` and one at `/app/build.gradle`,
@@ -29,7 +30,7 @@ buildscript {
 
 plugins {
     // Apply the plugin
-    id 'com.quittle.setup-android-sdk' version '1.3.1'
+    id 'com.quittle.setup-android-sdk' version 'x.x.x'
 }
 
 // The rest of the file can remain as it is
@@ -60,7 +61,7 @@ to apply the plugin *before* the `android` one.
 ```groovy
 // Consume from Gradle plugin respository. This is the only required step.
 plugins {
-    id 'com.quittle.setup-android-sdk' version '1.3.1'
+    id 'com.quittle.setup-android-sdk' version 'x.x.x'
 }
 
 // Consume android plugin as usual.
@@ -81,6 +82,13 @@ setupAndroidSdk {
     packages 'ndk-bundle', 'emulator', 'system-images;android-28;default;x86'
 }
 ```
+
+### Note
+
+This plugin performs the SDK installation as part of Gradle's configuration phase instead of being
+a task because the Android plugin does verification of the SDK when it is applied. It checks if the
+required version of the SDK was already installed, however, so it won't do any unnecessary
+networking. This means post installation, the build should work fine without network access.
 
 ## Development
 
@@ -103,4 +111,5 @@ See `.travis.yml` for the CI/CD setup.
 In the configuration for the build on Travis, `GRADLE_PUBLISH_KEY` and `GRADLE_PUBLISH_SECRET` are
 injected as secret environment variables.
 
-Upon check-in to the `master` branch, Travis checks out, builds, and deploys the plugin.
+Upon check-in to the `master` branch, Travis checks out, builds, and deploys the plugin. Version
+numbers are determined by tag names.
