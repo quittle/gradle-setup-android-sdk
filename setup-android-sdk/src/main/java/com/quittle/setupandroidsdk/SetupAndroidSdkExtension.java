@@ -1,5 +1,6 @@
 package com.quittle.setupandroidsdk;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -21,6 +22,12 @@ public class SetupAndroidSdkExtension {
      * {@link #DEFAULT_SDK_TOOLS_VERSION}.
      */
     private String sdkToolsVersion = DEFAULT_SDK_TOOLS_VERSION;
+
+    /**
+     * Directory where licenses files are available. If {@code null}, the all licenses are
+     * automatically accepted.
+     */
+    private File licensesDirectory = null;
 
     /**
      * The Android SDK Manager packages to install.
@@ -77,5 +84,32 @@ public class SetupAndroidSdkExtension {
      */
     public Collection<String> getPackages() {
         return new HashSet<>(this.packages);
+    }
+
+    /**
+     * Gets the directory where license files to use when installing the SDK are stored
+     * @return The directory to copy licenses from or {@code null} if licenses should be
+     *         automatically accepted.
+     */
+    public File getLicensesDirectory() {
+        return this.licensesDirectory;
+    }
+
+    /**
+     * Sets the directory where license files to use when installing the SDK are stored
+     * @param licensesDirectory The directory to copy licenses from or {@code null} if licenses
+     *                           should be automatically accepted.
+     */
+    public void setLicensesDirectory(final File licensesDirectory) {
+        this.licensesDirectory = licensesDirectory;
+    }
+
+    /**
+     * Sets the directory where license files to use when installing the SDK are stored
+     * @param licensesDirectory The directory to copy licenses from or {@code null} if licenses
+     *                           should be automatically accepted.
+     */
+    public void licensesDirectory(final File licensesDirectory) {
+        setLicensesDirectory(licensesDirectory);
     }
 }

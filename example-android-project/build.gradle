@@ -43,6 +43,12 @@ setupAndroidSdk {
         sdkToolsVersion = version
     }
 
+    final String licensesDir = System.env.LICENSES_DIR
+    if (licensesDir != null) {
+        licensesDirectory file(licensesDir)
+        licensesDirectory = file(licensesDir)
+    }
+
     // All of these should be supported
     packages('ndk-bundle')
     packages 'ndk-bundle', 'ndk-bundle'

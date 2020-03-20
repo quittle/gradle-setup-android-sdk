@@ -6,8 +6,9 @@ set -ex
 
 SDK_MANAGER='./example-android-project/build/android-sdk-root/tools/bin/sdkmanager'
 APK_ANALYZER='./example-android-project/build/android-sdk-root/tools/bin/apkanalyzer'
-DEBUG_APK="./example-android-project/build/outputs/apk/debug/example-android-project-debug.apk"
-LOCAL_PROPERTIES='example-android-project/local.properties'
+DEBUG_APK='./example-android-project/build/outputs/apk/debug/example-android-project-debug.apk'
+LOCAL_PROPERTIES='./example-android-project/local.properties'
+LICENSES_FILE='./example-android-project/build/android-sdk-root/licenses/android-sdk-license'
 
 # Echo's the SHA-256 sum of the sdk manager
 hash_sdkmanager() {
@@ -115,3 +116,14 @@ assert_app_contains_native_code
 
 # New version with differently named class
 ANDROID_GRADLE_PLUGIN_VERSION=3.5.0 ./gradlew -p example-android-project assemble
+
+# Explicit, invalid licenses don't build
+rm -rf 'example-android-project/build'
+LICENSES_DIR="src" ./gradlew -p example-android-project assemble && \
+    fail 'Invalid licenses should result in build failures' || \
+    echo 'Build failure expected'
+assert_file_does_not_exist $LICENSES_FILE
+
+# Explicit, valid licenses fixes a previously broken build
+LICENSES_DIR="licenses" ./gradlew -p example-android-project assemble
+assert_file_exists $LICENSES_FILE

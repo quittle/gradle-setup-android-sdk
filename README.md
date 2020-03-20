@@ -1,8 +1,9 @@
 # Android SDK Installer [![Gradle Plugin](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/quittle/setup-android-sdk/maven-metadata.xml.svg?label=Gradle+Plugin)](https://plugins.gradle.org/plugin/com.quittle.setup-android-sdk) [![Build Status](https://travis-ci.com/quittle/gradle-setup-android-sdk.svg?branch=master)](https://travis-ci.com/quittle/gradle-setup-android-sdk)
 
 This plugin automatically installs the Android SDK and configures Gradle to consume it. This plugin
-will automatically accept all Android SDK licenses when installing them. Before using the plugin or
-upgrading Android SDK versions, make sure you are okay accepting the licenses for those versions.
+also automatically accepts all Android SDK licenses by default when downloading SDK packages. *Before
+using the plugin or upgrading Android SDK versions, make sure you are okay accepting the licenses
+for those versions or explicitly set `setupAndroidSdk.licensesDirectory` if not.*
 
 ## Consumption
 
@@ -47,6 +48,12 @@ setupAndroidSdk {
     // If not specified, defaults to the version baked into the plugin.
     sdkToolsVersion '4333796'
 
+    // Optional field to specify the licenses you previously accepted. If not set, all licenses are
+    // automatically accepted.
+    // See https://developer.android.com/studio/intro/update.html#download-with-gradle for more info
+    // on backing up license agreements.
+    licensesDirectory file('path/to/licenses')
+
     // You can add additional packages to install like this
     packages 'ndk-bundle', 'emulator', 'system-images;android-28;default;x86'
 }
@@ -78,6 +85,12 @@ setupAndroidSdk {
     // If not specified, defaults to the version baked into the plugin.
     sdkToolsVersion '4333796'
 
+    // Optional field to specify the licenses you previously accepted. If not set, all licenses are
+    // automatically accepted.
+    // See https://developer.android.com/studio/intro/update.html#download-with-gradle for more info
+    // on backing up license agreements.
+    licensesDirectory file('path/to/licenses')
+
     // You can add additional packages to install like this
     packages 'ndk-bundle', 'emulator', 'system-images;android-28;default;x86'
 }
@@ -89,6 +102,14 @@ This plugin performs the SDK installation as part of Gradle's configuration phas
 a task because the Android plugin does verification of the SDK when it is applied. It checks if the
 required version of the SDK was already installed, however, so it won't do any unnecessary
 networking. This means post installation, the build should work fine without network access.
+
+A way to ensure the licenses you accept remain stable is to do do a build once without specifying
+`licensesDirectory` and copying the contents of `build/android-sdk-root/licenses` to a folder in
+your version controlled directory and referencing that directory with `licensesDirectory` in your
+`build.gradle`. If you check in this license directory and configure this plugin to use it, your
+build will only succeed if no new licenses needed to be accepted when downloading SDKs. This process
+is [recommended by Google](https://developer.android.com/studio/intro/update.html#download-with-gradle)
+to prevent ensure you are always fully aware of what you are agreeing to.
 
 ## Development
 

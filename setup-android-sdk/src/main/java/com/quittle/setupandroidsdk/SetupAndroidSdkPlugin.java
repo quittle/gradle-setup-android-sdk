@@ -48,6 +48,7 @@ import static com.quittle.setupandroidsdk.Utils.getConstantViaReflection;
 public class SetupAndroidSdkPlugin implements Plugin<Project> {
     private static final String SDK_TOOLS_URL_FORMAT =
             "https://dl.google.com/android/repository/sdk-tools-%s-%s.zip";
+
     @Override
     public void apply(final Project project) {
         final Project rootProject = project.getRootProject();
@@ -67,15 +68,17 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
         }
 
         rootProject.afterEvaluate(p -> {
+            setupLicences(logger, extension.getLicensesDirectory(), sdkDir);
             installSdkManager(logger, sdkToolsVersionFile, extension.getSdkToolsVersion(), sdkDir, sdkManager);
         });
 
         project.allprojects(p -> {
             p.afterEvaluate(pp -> {
+                final boolean shouldAutoAcceptLicenses = extension.getLicensesDirectory() == null;
                 final Set<String> packages = new HashSet<>();
                 packages.addAll(getDefaultPackagesToInstall(pp));
                 packages.addAll(extension.getPackages());
-                installSdk(logger, sdkDir, sdkManager, packages);
+                installSdk(logger, sdkDir, sdkManager, packages, shouldAutoAcceptLicenses);
             });
         });
     }
@@ -92,6 +95,21 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
             return new File(sdkDir, "tools/bin/sdkmanager.bat");
         } else {
             throw new TaskInstantiationException("Unsupported OS. File a bug report to get it added");
+        }
+    }
+
+    private static void setupLicences(
+            final Logger logger, final File licenseDirectory, final File sdkDir) {
+        if (licenseDirectory == null) {
+            logger.debug("No license directory specified, accepting all licenses automatically");
+            return;
+        }
+        final File sdkLicensesDirectory = new File(sdkDir, "licenses");
+        try {
+            FileUtils.deleteDirectory(sdkLicensesDirectory);
+            FileUtils.copyDirectory(licenseDirectory, sdkLicensesDirectory);
+        } catch (final IOException e) {
+            throw new TaskInstantiationException("Unable to synchronize licenses directory", e);
         }
     }
 
@@ -211,7 +229,11 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
         return Arrays.asList("platforms;" + compileSdkVersion, "build-tools;" + buildToolsVersion);
     }
 
-    private static void installSdk(final Logger logger, final File sdkRoot, final File sdkManager, final Collection<String> packages) {
+    private static void installSdk(final Logger logger,
+                                   final File sdkRoot,
+                                   final File sdkManager,
+                                   final Collection<String> packages,
+                                   final boolean shouldAutoAcceptLicenses) {
         final List<String> command = new ArrayList<>();
         command.add(sdkManager.getAbsolutePath());
         command.add("--sdk_root=" + sdkRoot.getAbsolutePath());
@@ -222,8 +244,12 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
         final int exitCode;
         try {
             final Process process = pb.start();
-            try (final OutputStream os = process.getOutputStream()) {
-                os.write('y');
+            if (shouldAutoAcceptLicenses) {
+                try (final OutputStream os = process.getOutputStream()) {
+                    os.write('y');
+                }
+            } else {
+                process.getOutputStream().close();
             }
             write(process.getInputStream(), logger::debug);
             exitCode = process.waitFor();
