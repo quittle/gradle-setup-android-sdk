@@ -117,6 +117,9 @@ assert_app_contains_native_code
 # New version with differently named class
 ANDROID_GRADLE_PLUGIN_VERSION=3.5.0 ./gradlew -p example-android-project assemble
 
+# New version with differently named class
+ANDROID_GRADLE_PLUGIN_VERSION=4.0.0 ./gradlew -p example-android-project assemble
+
 # Explicit, invalid licenses don't build
 rm -rf 'example-android-project/build'
 LICENSES_DIR="src" ./gradlew -p example-android-project assemble && \

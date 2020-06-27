@@ -268,6 +268,7 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
      * unsupported and rather than failing the build, the plugin helpfully ignores what was specified, logs a warning,
      * and instead uses the min version hardcoded in the plugin.
      */
+    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE") // Newrer versions of getBuildToolsVersion return a non-null value
     private static String getBuildToolsVersion(final BaseExtension android) {
         final String explicitVersion = android.getBuildToolsVersion();
         final Revision minBuildToolsVersion = getMinBuildToolsRev();

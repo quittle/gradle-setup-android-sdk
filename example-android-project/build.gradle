@@ -9,7 +9,7 @@ buildscript {
     dependencies {
         classpath 'com.quittle:setup-android-sdk:+'
 
-        final String androidGradlePluginVersion = System.env.ANDROID_GRADLE_PLUGIN_VERSION ?: '3.3.0'
+        final String androidGradlePluginVersion = System.env.ANDROID_GRADLE_PLUGIN_VERSION ?: '3.4.0'
         classpath "com.android.tools.build:gradle:${androidGradlePluginVersion}"
     }
 }
@@ -23,9 +23,9 @@ apply plugin: 'com.quittle.setup-android-sdk'
 apply plugin: 'android'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
-    final String androidBuildToolsVersion = System.env.ANDROID_BUILD_TOOLS_VERSION ?: '28.0.2'
+    final String androidBuildToolsVersion = System.env.ANDROID_BUILD_TOOLS_VERSION ?: '28.0.3'
     buildToolsVersion androidBuildToolsVersion
 
     externalNativeBuild {
