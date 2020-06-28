@@ -23,6 +23,7 @@ apply plugin: 'com.quittle.setup-android-sdk'
 apply plugin: 'android'
 
 android {
+    ndkVersion '21.3.6528147'
     compileSdkVersion 29
 
     final String androidBuildToolsVersion = System.env.ANDROID_BUILD_TOOLS_VERSION ?: '28.0.3'
@@ -50,7 +51,8 @@ setupAndroidSdk {
     }
 
     // All of these should be supported
-    packages('ndk-bundle')
-    packages 'ndk-bundle', 'ndk-bundle'
-    packages(['ndk-bundle', 'ndk-bundle'])
+    final String NDK = "ndk;${android.ndkVersion}"
+    packages(NDK)
+    packages NDK, NDK
+    packages([NDK, NDK])
 }

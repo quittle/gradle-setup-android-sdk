@@ -117,7 +117,9 @@ assert_app_contains_native_code
 # New version with differently named class
 ANDROID_GRADLE_PLUGIN_VERSION=3.5.0 ./gradlew -p example-android-project assemble
 
-# New version with differently named class
+# New version with change to how NDK gets installed
+# Upgrade is incompatible without a clean
+rm -rf 'example-android-project/build'
 ANDROID_GRADLE_PLUGIN_VERSION=4.0.0 ./gradlew -p example-android-project assemble
 
 # Explicit, invalid licenses don't build
