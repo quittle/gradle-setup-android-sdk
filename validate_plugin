@@ -5,7 +5,7 @@
 set -ex
 
 SDK_MANAGER='./example-android-project/build/android-sdk-root/tools/bin/sdkmanager'
-APK_ANALYZER='./example-android-project/build/android-sdk-root/tools/bin/apkanalyzer'
+APK_ANALYZER='./example-android-project/build/android-sdk-root/cmdline-tools/1.0/bin/apkanalyzer'
 DEBUG_APK='./example-android-project/build/outputs/apk/debug/example-android-project-debug.apk'
 LOCAL_PROPERTIES='./example-android-project/local.properties'
 LICENSES_FILE='./example-android-project/build/android-sdk-root/licenses/android-sdk-license'
@@ -78,13 +78,13 @@ assert_file_does_not_exist $LOCAL_PROPERTIES
 # Default sdkmanager
 ./gradlew -p example-android-project assemble
 assert_file_exists $LOCAL_PROPERTIES
-assert_sdkmanager_hash 'ca5dce516a93bea2c070ba6cc63d3d45436ce1c9a27f1173256b2aa98ae1cffa'
+assert_sdkmanager_hash '42e587cd6795924403943856f8d5d62200272cc121ae89e5c91681967449c6e0'
 assert_app_contains_native_code
 
-# Overridden sdkmanager
-SDK_TOOLS_VERSION=3859397 ./gradlew -p example-android-project assemble
+# Overridden tools version. No older version of the tools current exist such that sdkmanager's hash changed
+SDK_TOOLS_VERSION=6514223_latest ./gradlew -p example-android-project assemble
 assert_file_exists $LOCAL_PROPERTIES
-assert_sdkmanager_hash '7dbdf8118c98a3a55f0d66898872d0ebbd15b5b0f6446766a061e0dd6d0327b9'
+assert_sdkmanager_hash '42e587cd6795924403943856f8d5d62200272cc121ae89e5c91681967449c6e0'
 assert_app_contains_native_code
 
 # Invalid sdkmanager
@@ -92,7 +92,7 @@ SDK_TOOLS_VERSION=invalid ./gradlew -p example-android-project assemble && \
         echo 'Build should not have succeeded' && exit 1 || \
         echo 'Build failure expected'
 assert_file_exists $LOCAL_PROPERTIES
-assert_sdkmanager_hash '7dbdf8118c98a3a55f0d66898872d0ebbd15b5b0f6446766a061e0dd6d0327b9'
+assert_sdkmanager_hash '42e587cd6795924403943856f8d5d62200272cc121ae89e5c91681967449c6e0'
 
 ./gradlew -p example-android-project cleanLocalProperties
 assert_file_does_not_exist $LOCAL_PROPERTIES
@@ -114,13 +114,19 @@ assert_app_contains_native_code
 ANDROID_BUILD_TOOLS_VERSION=0.0.1 ./gradlew -p example-android-project assemble
 assert_app_contains_native_code
 
+# Older version of the build tools
+ANDROID_BUILD_TOOLS_VERSION=28.0.2 ./gradlew -p example-android-project assemble
+assert_app_contains_native_code
+
 # New version with differently named class
 ANDROID_GRADLE_PLUGIN_VERSION=3.5.0 ./gradlew -p example-android-project assemble
 
 # New version with change to how NDK gets installed
 # Upgrade is incompatible without a clean
 rm -rf 'example-android-project/build'
-ANDROID_GRADLE_PLUGIN_VERSION=4.0.0 ./gradlew -p example-android-project assemble
+
+# More recent version
+ANDROID_GRADLE_PLUGIN_VERSION=4.0.1 ./gradlew -p example-android-project assemble
 
 # Explicit, invalid licenses don't build
 rm -rf 'example-android-project/build'

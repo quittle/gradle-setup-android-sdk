@@ -55,4 +55,6 @@ setupAndroidSdk {
     packages(NDK)
     packages NDK, NDK
     packages([NDK, NDK])
+    // Final version that is actually used
+    packages 'cmdline-tools;1.0', NDK
 }

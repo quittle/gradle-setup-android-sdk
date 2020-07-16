@@ -15,7 +15,7 @@ public class SetupAndroidSdkExtension {
      * The default version of Android SDK Tools to download and use.
      * Currently is {@code Revision 26.1.1 (September 2017)}
      */
-    public static final String DEFAULT_SDK_TOOLS_VERSION = "4333796";
+    public static final String DEFAULT_SDK_TOOLS_VERSION = "6609375_latest";
 
     /**
      * The version of Android SDK Tools to download and use. Defaults to

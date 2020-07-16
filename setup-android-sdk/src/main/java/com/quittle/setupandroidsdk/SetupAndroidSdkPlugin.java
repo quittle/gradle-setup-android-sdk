@@ -47,7 +47,7 @@ import static com.quittle.setupandroidsdk.Utils.getConstantViaReflection;
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class SetupAndroidSdkPlugin implements Plugin<Project> {
     private static final String SDK_TOOLS_URL_FORMAT =
-            "https://dl.google.com/android/repository/sdk-tools-%s-%s.zip";
+            "https://dl.google.com/android/repository/commandlinetools-%s-%s.zip";
 
     @Override
     public void apply(final Project project) {
@@ -187,6 +187,9 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
         });
     }
 
+    @SuppressFBWarnings(
+            value = "OBL_UNSATISFIED_OBLIGATION",
+            justification = "https://github.com/spotbugs/spotbugs/issues/432")
     private static void createLocalProperties(final File sdkDir, final File localProperties) {
         final Properties properties = new Properties();
         properties.setProperty("sdk.dir", sdkDir.getAbsolutePath());
@@ -202,9 +205,9 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
         if (Os.isFamily(Os.FAMILY_UNIX)) {
             platform = "linux";
         } else if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            platform = "windows";
+            platform = "win";
         } else if (Os.isFamily(Os.FAMILY_MAC)) {
-            platform = "darwin";
+            platform = "mac";
         } else {
             throw new TaskInstantiationException("Unsupported OS. File a bug report to get it added");
         }
@@ -268,7 +271,9 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
      * unsupported and rather than failing the build, the plugin helpfully ignores what was specified, logs a warning,
      * and instead uses the min version hardcoded in the plugin.
      */
-    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE") // Newrer versions of getBuildToolsVersion return a non-null value
+    @SuppressFBWarnings(
+            value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
+            justification = "Older versions of the plugin don't guarantee getBuildToolsVersion won't return null.")
     private static String getBuildToolsVersion(final BaseExtension android) {
         final String explicitVersion = android.getBuildToolsVersion();
         final Revision minBuildToolsVersion = getMinBuildToolsRev();
