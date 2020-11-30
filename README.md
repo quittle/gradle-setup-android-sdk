@@ -1,4 +1,4 @@
-# Android SDK Installer [![Gradle Plugin](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/quittle/setup-android-sdk/maven-metadata.xml.svg?label=Gradle+Plugin)](https://plugins.gradle.org/plugin/com.quittle.setup-android-sdk) [![Build Status](https://travis-ci.com/quittle/gradle-setup-android-sdk.svg?branch=master)](https://travis-ci.com/quittle/gradle-setup-android-sdk)
+# Android SDK Installer [![Gradle Plugin](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/quittle/setup-android-sdk/maven-metadata.xml.svg?label=Gradle+Plugin)](https://plugins.gradle.org/plugin/com.quittle.setup-android-sdk) [![Build Status](https://github.com/quittle/gradle-setup-android-sdk/workflows/Setup%20Android%20SDK%20Gradle%20Plugin/badge.svg?branch=main)](https://github.com/quittle/gradle-setup-android-sdk/actions?query=workflow%3A%22Setup+Android+SDK+Gradle+Plugin%22+branch%3Amain)
 
 This plugin automatically installs the Android SDK and configures Gradle to consume it. This plugin
 also automatically accepts all Android SDK licenses by default when downloading SDK packages. *Before
@@ -22,7 +22,7 @@ buildscript {
         // Make sure to have Google as a buildscript dependency for the plugin
         google()
     }
-    
+
     dependencies {
         // Keep whatever build tools you have like the
         // Android Gradle plugin (com.android.tools.build:gradle)
@@ -126,11 +126,11 @@ $ ./validate_plugin # Integration test to validate the plugin works
 ```
 
 ## Deployment
-This package is deployed via [Travis CI](https://travis-ci.com/quittle/gradle-setup-android-sdk).
-See `.travis.yml` for the CI/CD setup.
+This package is deployed via [GitHub Actions on the `main` branch](https://github.com/quittle/gradle-setup-android-sdk/actions?query=workflow%3A%22Setup+Android+SDK+Gradle+Plugin%22+branch%3Amain).
+See `.github/workflows/gradle.yml` for the CI/CD setup.
 
-In the configuration for the build on Travis, `GRADLE_PUBLISH_KEY` and `GRADLE_PUBLISH_SECRET` are
-injected as secret environment variables.
+This repository has `GRADLE_PUBLISH_KEY` and `GRADLE_PUBLISH_SECRET` secrets set up from
+https://plugins.gradle.org injected into the build.
 
-Upon check-in to the `master` branch, Travis checks out, builds, and deploys the plugin. Version
-numbers are determined by tag names.
+Upon check-in to the `main` branch, GitHub Actions checks out, builds, and deploys the plugin.
+Version numbers are determined by tag names.
