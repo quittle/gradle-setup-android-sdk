@@ -67,10 +67,8 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
             createLocalProperties(sdkDir, localProperties);
         }
 
-        rootProject.afterEvaluate(p -> {
-            setupLicences(logger, extension.getLicensesDirectory(), sdkDir);
-            installSdkManager(logger, sdkToolsVersionFile, extension.getSdkToolsVersion(), sdkDir, sdkManager);
-        });
+        setupLicences(logger, extension.getLicensesDirectory(), sdkDir);
+        installSdkManager(logger, sdkToolsVersionFile, extension.getSdkToolsVersion(), sdkDir, sdkManager);
 
         project.allprojects(p -> {
             p.afterEvaluate(pp -> {
@@ -148,7 +146,6 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     @SuppressWarnings("PMD.AssignmentInOperand")
     private static void downloadSdkTools(final Logger logger, final File sdkRoot, final String sdkToolsVersion) {
-        byte[] memoryRepresentation = null;
         try (final InputStream is = new URL(getSdkToolsUrl(sdkToolsVersion)).openStream();
                 final ZipInputStream zis = new ZipInputStream(is)) {
             ZipEntry entry;
