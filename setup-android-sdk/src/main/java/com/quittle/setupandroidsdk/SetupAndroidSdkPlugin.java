@@ -6,8 +6,10 @@ import com.android.repository.Revision;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.tools.ant.taskdefs.condition.Os;
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.ProjectState;
 import org.gradle.api.Task;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.Delete;
@@ -67,17 +69,30 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
             createLocalProperties(sdkDir, localProperties);
         }
 
-        setupLicences(logger, extension.getLicensesDirectory(), sdkDir);
-        installSdkManager(logger, sdkToolsVersionFile, extension.getSdkToolsVersion(), sdkDir, sdkManager);
+        // afterEvaluate required for consumer to configure extension
+        project.afterEvaluate(p -> {
+            setupLicences(logger, extension.getLicensesDirectory(), sdkDir);
+            installSdkManager(logger, sdkToolsVersionFile, extension.getSdkToolsVersion(), sdkDir, sdkManager);
+        });
+
+        final Action<Project> installPackagesForProject = p -> {
+            final boolean shouldAutoAcceptLicenses = extension.getLicensesDirectory() == null;
+            final Set<String> packages = new HashSet<>();
+            packages.addAll(getDefaultPackagesToInstall(p));
+            packages.addAll(extension.getPackages());
+            installSdk(logger, sdkDir, sdkManager, packages, shouldAutoAcceptLicenses);
+        };
 
         project.allprojects(p -> {
-            p.afterEvaluate(pp -> {
-                final boolean shouldAutoAcceptLicenses = extension.getLicensesDirectory() == null;
-                final Set<String> packages = new HashSet<>();
-                packages.addAll(getDefaultPackagesToInstall(pp));
-                packages.addAll(extension.getPackages());
-                installSdk(logger, sdkDir, sdkManager, packages, shouldAutoAcceptLicenses);
-            });
+            final ProjectState state = p.getState();
+            // If applied to a root project that uses evaluationDependsOnChildren, afterEvaluate actions won't be
+            // triggered so checking the current state of that project is required and must be scheduled for after the
+            // current project is evaluated to ensure the sdkmanager installation is completed first.
+            if (state.getExecuted()) {
+                project.afterEvaluate(installPackagesForProject);
+            } else {
+                p.afterEvaluate(installPackagesForProject);
+            }
         });
     }
 
