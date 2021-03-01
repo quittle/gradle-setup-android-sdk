@@ -71,7 +71,7 @@ dependencies {
 
     implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
 
-    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'junit:junit:4.13.2'
     testImplementation 'com.google.code.findbugs:annotations:3.0.1'
 }
 
