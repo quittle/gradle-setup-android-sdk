@@ -1,0 +1,16 @@
+version: 2
+updates:
+- package-ecosystem: gradle
+  directory: "/setup-android-sdk"
+  schedule:
+    interval: weekly
+    day: friday
+    time: "18:00"
+    timezone: Europe/London
+  open-pull-requests-limit: 99
+  reviewers:
+  - quittle
+  assignees:
+  - quittle
+  labels:
+  - dependencies
