@@ -69,7 +69,7 @@ dependencies {
     annotationProcessor 'com.google.code.findbugs:annotations:3.0.1'
     compileOnly 'com.google.code.findbugs:annotations:3.0.1'
 
-    implementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+    implementation 'org.junit.jupiter:junit-jupiter:5.8.2'
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'com.google.code.findbugs:annotations:3.0.1'
