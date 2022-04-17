@@ -1,5 +1,6 @@
 package com.quittle.setupandroidsdk;
 
+import java.io.File;
 import java.util.Optional;
 
 /**
@@ -28,6 +29,20 @@ final class Utils {
         } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
             return Optional.empty();
         }
+    }
+
+    /**
+     * Loops over the input, returning the first file that exists.
+     * @param files The files to check the existence of.
+     * @return The first file in the input that exists or {@code null} if none of the files exist.
+     */
+    public static File getFirstFileThatExists(final File... files) {
+        for (final File file : files) {
+            if (file.exists()) {
+                return file;
+            }
+        }
+        return null;
     }
 
     private Utils() {}

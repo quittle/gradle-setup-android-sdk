@@ -1,8 +1,6 @@
 package com.quittle.setupandroidsdk;
 
 import com.android.build.gradle.BaseExtension;
-import com.android.repository.Revision;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.tools.ant.taskdefs.condition.Os;
@@ -288,12 +286,12 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
             justification = "Older versions of the plugin don't guarantee getBuildToolsVersion won't return null.")
     private static String getBuildToolsVersion(final BaseExtension android) {
         final String explicitVersion = android.getBuildToolsVersion();
-        final Revision minBuildToolsVersion = getMinBuildToolsRev();
-        final Revision determinedVersion;
+        final AndroidRevision minBuildToolsVersion = getMinBuildToolsRev();
+        final AndroidRevision determinedVersion;
         if (explicitVersion == null) {
             determinedVersion = minBuildToolsVersion;
         } else {
-            final Revision explicitFullRevision = Revision.parseRevision(explicitVersion);
+            final AndroidRevision explicitFullRevision = AndroidRevision.parseRevision(explicitVersion);
             if (explicitFullRevision.compareTo(minBuildToolsVersion) < 0) {
                 determinedVersion = minBuildToolsVersion;
             } else {
@@ -308,14 +306,15 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
      * @return The minimum version.
      * @throws TaskInstantiationException if unable to determine the version
      */
-    private static Revision getMinBuildToolsRev() {
-        return Stream.of(
-                    getConstantViaReflection("com.android.builder.core.AndroidBuilder", "MIN_BUILD_TOOLS_REV", Revision.class),
-                    getConstantViaReflection("com.android.builder.core.ToolsRevisionUtils", "MIN_BUILD_TOOLS_REV", Revision.class))
+    private static AndroidRevision getMinBuildToolsRev() {
+        final Object o = Stream.of(
+                    getConstantViaReflection("com.android.builder.core.AndroidBuilder", "MIN_BUILD_TOOLS_REV", Object.class),
+                    getConstantViaReflection("com.android.builder.core.ToolsRevisionUtils", "MIN_BUILD_TOOLS_REV", Object.class))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .findFirst()
                 .orElseThrow(() -> new TaskInstantiationException("Unable to determine min build tools version"));
+        return AndroidRevision.parseRevision(o.toString());
     }
 
     /**
