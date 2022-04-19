@@ -9,7 +9,7 @@ buildscript {
     dependencies {
         classpath 'com.quittle:setup-android-sdk:+'
 
-        final String androidGradlePluginVersion = System.env.ANDROID_GRADLE_PLUGIN_VERSION ?: '3.6.0'
+        final String androidGradlePluginVersion = System.env.ANDROID_GRADLE_PLUGIN_VERSION ?: '4.1.0'
         classpath "com.android.tools.build:gradle:${androidGradlePluginVersion}"
     }
 }
