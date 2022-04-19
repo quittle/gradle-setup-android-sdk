@@ -107,7 +107,7 @@ assert_file_does_not_exist $LOCAL_PROPERTIES
 assert_file_does_not_exist $SDK_MANAGER
 
 # Alpha version
-ANDROID_GRADLE_PLUGIN_VERSION=3.4.0-rc03 ./gradlew -p example-android-project assemble
+ANDROID_GRADLE_PLUGIN_VERSION=3.6.0-rc03 ./gradlew -p example-android-project assemble
 assert_app_contains_native_code
 
 # Super old version of the build tools
@@ -118,15 +118,15 @@ assert_app_contains_native_code
 ANDROID_BUILD_TOOLS_VERSION=28.0.2 ./gradlew -p example-android-project assemble
 assert_app_contains_native_code
 
-# New version with differently named class
-ANDROID_GRADLE_PLUGIN_VERSION=3.5.0 ./gradlew -p example-android-project assemble
-
 # New version with change to how NDK gets installed
 # Upgrade is incompatible without a clean
 rm -rf 'example-android-project/build'
 
 # More recent version
 ANDROID_GRADLE_PLUGIN_VERSION=4.0.1 ./gradlew -p example-android-project assemble
+
+# Even more recent
+ANDROID_GRADLE_PLUGIN_VERSION=7.1.3 ./gradlew -p example-android-project assemble
 
 # Explicit, invalid licenses don't build
 rm -rf 'example-android-project/build'
