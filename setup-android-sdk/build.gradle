@@ -12,7 +12,7 @@ import org.eclipse.jgit.api.Git
 
 plugins {
     id 'com.github.spotbugs' version '5.0.9'
-    id 'com.gradle.plugin-publish' version '0.21.0'
+    id 'com.gradle.plugin-publish' version '1.0.0'
     id 'java-gradle-plugin'
     id 'maven-publish'
     id 'pmd'
@@ -34,6 +34,8 @@ gradlePlugin {
     plugins {
         setupAndroidSdkPlugin {
             id = 'com.quittle.setup-android-sdk'
+            displayName = 'Setup Android SDK'
+            description = 'Automatically installs Android SDK dependencies for Android Gradle builds.'
             implementationClass = 'com.quittle.setupandroidsdk.SetupAndroidSdkPlugin'
         }
     }
@@ -51,14 +53,7 @@ publishing {
 pluginBundle {
     website = 'https://github.com/quittle/gradle-setup-android-sdk'
     vcsUrl = 'https://github.com/quittle/gradle-setup-android-sdk'
-    description = 'Automatically installs Android SDK dependencies for Android Gradle builds.'
     tags = ['android', 'android sdk', 'installer']
-
-    plugins {
-        setupAndroidSdkPlugin {
-            displayName = 'Setup Android SDK'
-        }
-    }
 }
 
 dependencies {
