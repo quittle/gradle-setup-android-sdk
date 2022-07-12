@@ -55,7 +55,6 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
         final Logger logger = rootProject.getLogger();
         final File sdkDir = new File(rootProject.getBuildDir(), "android-sdk-root");
         final File sdkToolsVersionFile = new File(sdkDir, "sdkToolsVersion.txt");
-        final File sdkManager = getSdkManager(sdkDir);
         final File localProperties = rootProject.file("local.properties");
 
         final SetupAndroidSdkExtension extension =
@@ -69,11 +68,13 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
 
         // afterEvaluate required for consumer to configure extension
         project.afterEvaluate(p -> {
+            final File sdkManager = getSdkManager(sdkDir);
             setupLicences(logger, extension.getLicensesDirectory(), sdkDir);
             installSdkManager(logger, sdkToolsVersionFile, extension.getSdkToolsVersion(), sdkDir, sdkManager);
         });
 
         final Action<Project> installPackagesForProject = p -> {
+            final File sdkManager = getSdkManager(sdkDir);
             final boolean shouldAutoAcceptLicenses = extension.getLicensesDirectory() == null;
             final Set<String> packages = new HashSet<>();
             packages.addAll(getDefaultPackagesToInstall(p));
@@ -97,16 +98,23 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
     /**
      * Gets the location of the sdkmanager executable
      * @param sdkDir The SDK directory to find the sdkmanager in
-     * @return The OS-dependent location of the sdkmanager tool
+     * @return The OS-dependent location of the sdkmanager tool or {@code null} if no appropriate file was found.
      */
     private static File getSdkManager(final File sdkDir) {
-        if (Os.isFamily(Os.FAMILY_UNIX) || Os.isFamily(Os.FAMILY_MAC)) {
-            return new File(sdkDir, "tools/bin/sdkmanager");
-        } else if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            return new File(sdkDir, "tools/bin/sdkmanager.bat");
-        } else {
-            throw new TaskInstantiationException("Unsupported OS. File a bug report to get it added");
+        for (final String relativePath : new String[] {"cmdline-tools/bin/sdkmanager", "tools/bin/sdkmanager"}){
+            final File file;
+            if (Os.isFamily(Os.FAMILY_UNIX) || Os.isFamily(Os.FAMILY_MAC)) {
+                file = new File(sdkDir, relativePath);
+            } else if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                file = new File(sdkDir, relativePath + ".bat");
+            } else {
+                throw new TaskInstantiationException("Unsupported OS. File a bug report to get it added.");
+            }
+            if (file.isFile()) {
+                return file;
+            }
         }
+        return null;
     }
 
     private static void setupLicences(
@@ -131,9 +139,9 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
     private static void installSdkManager(final Logger logger, final File sdkToolsVersionFile,
             final String desiredSdkToolsVersion, final File sdkDir, final File sdkManager) {
         final String currentSdkToolsVersion = getCurrentSdkToolsVersion(logger, sdkToolsVersionFile);
-        if (!sdkManager.exists() || !Objects.equals(desiredSdkToolsVersion, currentSdkToolsVersion)) {
+        if (sdkManager == null || !sdkManager.exists() || !Objects.equals(desiredSdkToolsVersion, currentSdkToolsVersion)) {
             downloadSdkTools(logger, sdkDir, desiredSdkToolsVersion);
-            sdkManager.setExecutable(true);
+            getSdkManager(sdkDir).setExecutable(true);
             try {
                 FileUtils.writeStringToFile(sdkToolsVersionFile, desiredSdkToolsVersion, StandardCharsets.UTF_8);
             } catch (final IOException e) {
