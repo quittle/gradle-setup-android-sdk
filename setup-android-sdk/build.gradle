@@ -60,8 +60,8 @@ dependencies {
     compileOnly 'com.android.tools.build:gradle:7.3.0'
     implementation 'commons-io:commons-io:2.11.0'
 
-    annotationProcessor 'com.github.spotbugs:spotbugs-annotations:4.7.2'
-    compileOnly 'com.github.spotbugs:spotbugs-annotations:4.7.1'
+    annotationProcessor 'com.github.spotbugs:spotbugs-annotations:4.7.3'
+    compileOnly 'com.github.spotbugs:spotbugs-annotations:4.7.3'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
