@@ -63,7 +63,7 @@ dependencies {
     annotationProcessor 'com.github.spotbugs:spotbugs-annotations:4.7.3'
     compileOnly 'com.github.spotbugs:spotbugs-annotations:4.7.3'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
     testImplementation 'com.github.spotbugs:spotbugs-annotations:4.7.2'
 }
