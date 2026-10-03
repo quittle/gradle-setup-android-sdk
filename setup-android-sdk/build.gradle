@@ -60,12 +60,12 @@ dependencies {
     compileOnly 'com.android.tools.build:gradle:7.3.1'
     implementation 'commons-io:commons-io:2.11.0'
 
-    annotationProcessor 'com.github.spotbugs:spotbugs-annotations:4.7.3'
-    compileOnly 'com.github.spotbugs:spotbugs-annotations:4.7.3'
+    annotationProcessor 'com.github.spotbugs:spotbugs-annotations:4.10.4'
+    compileOnly 'com.github.spotbugs:spotbugs-annotations:4.10.4'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
-    testImplementation 'com.github.spotbugs:spotbugs-annotations:4.7.2'
+    testImplementation 'com.github.spotbugs:spotbugs-annotations:4.10.4'
 }
 
 tasks.withType(JavaCompile) {
