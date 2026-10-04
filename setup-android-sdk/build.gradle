@@ -76,6 +76,14 @@ tasks.withType(JavaCompile) {
     options.compilerArgs << '-Xlint:all' << '-Werror'
 }
 
+// Tests aren't shipped to consumers, so the test source set opts back out of
+// the Java 11 pin: Gradle stamps org.gradle.jvm.version from each source
+// set's compile task release flag, and junit-jupiter 6.x only publishes a
+// Java 17 variant. Test classes become Java 17 bytecode and run on JDK 17.
+tasks.named('compileTestJava') {
+    options.release = 17
+}
+
 tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
     reports {
         xml.enabled = false
