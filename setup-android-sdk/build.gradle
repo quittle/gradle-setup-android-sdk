@@ -69,6 +69,10 @@ dependencies {
 }
 
 tasks.withType(JavaCompile) {
+    // Pin emitted bytecode to Java 11 even though the build runs on a newer JDK,
+    // so consumers on older JVMs keep working. --release also avoids the
+    // bootstrap-classpath warning that -Werror would turn into an error.
+    options.release = 11
     options.compilerArgs << '-Xlint:all' << '-Werror'
 }
 
