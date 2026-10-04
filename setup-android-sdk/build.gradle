@@ -9,6 +9,8 @@ buildscript {
 }
 
 import org.eclipse.jgit.api.Git
+import com.github.spotbugs.snom.Confidence
+import com.github.spotbugs.snom.Effort
 
 plugins {
     id 'com.github.spotbugs' version '5.0.13'
@@ -98,8 +100,8 @@ pmd {
 }
 
 spotbugs {
-    effort 'max'
-    reportLevel 'low'
+    effort = Effort.MAX
+    reportLevel = Confidence.LOW
 }
 
 defaultTasks 'assemble', 'javadoc', 'check'
