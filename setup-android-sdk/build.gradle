@@ -109,7 +109,7 @@ pmd {
 
 spotbugs {
     effort = Effort.MAX
-    reportLevel = Confidence.LOW
+    reportLevel = Confidence.valueOf('LOW')
 }
 
 defaultTasks 'assemble', 'javadoc', 'check'
