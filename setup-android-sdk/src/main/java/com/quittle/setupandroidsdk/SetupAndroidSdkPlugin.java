@@ -205,9 +205,6 @@ public class SetupAndroidSdkPlugin implements Plugin<Project> {
         });
     }
 
-    @SuppressFBWarnings(
-            value = "OBL_UNSATISFIED_OBLIGATION",
-            justification = "https://github.com/spotbugs/spotbugs/issues/432")
     private static void createLocalProperties(final File sdkDir, final File localProperties) {
         final Properties properties = new Properties();
         properties.setProperty("sdk.dir", sdkDir.getAbsolutePath());
