@@ -13,7 +13,7 @@ import com.github.spotbugs.snom.Confidence
 import com.github.spotbugs.snom.Effort
 
 plugins {
-    id 'com.github.spotbugs' version '5.0.13'
+    id 'com.github.spotbugs' version '6.5.12'
     id 'com.gradle.plugin-publish' version '2.2.1'
     id 'java-gradle-plugin'
     id 'maven-publish'
